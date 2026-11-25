@@ -1,0 +1,16 @@
+Recursos gráficos utilizados (descargados de itch.io el 23/11/2026)
+
+1. GothicVania Church Pack — Luis Zuno (ansimuz)
+   https://ansimuz.itch.io/gothicvania-church-pack
+   Licencia: CC0 (dominio público), según public-license.pdf del pack.
+   Usado: tileset de suelo y bloques, puertas, balaustrada, muro con velas,
+   vidriera, altar, gárgola, antorcha, columna y monje (silueta de escala).
+
+2. GothicVania Cemetery — Luis Zuno (ansimuz)
+   https://ansimuz.itch.io/gothicvania-cemetery
+   Licencia: CC0 (dominio público), según public-license.pdf del pack.
+   Usado: cielo con luna, montañas, cementerio del fondo intermedio,
+   árboles secos, estatua, lápidas y arbustos.
+
+Montaje, composición del recorrido, oscurecido de los planos de fondo,
+textura del subsuelo y silueta con contorno: elaboración propia.
