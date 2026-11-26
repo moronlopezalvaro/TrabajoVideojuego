@@ -1,22 +1,23 @@
 using UnityEngine;
 
+// Script del personaje: lo mueve a izquierda y derecha, le deja saltar cuando está en el suelo,
+// hace que la cámara lo siga y, al llegar a la meta, enseña el mensaje final y lo para.
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movimiento")] //mover el personaje de izquierda a derecha
+    [Header("Movimiento")]
     [SerializeField, Min(0f)]
     [Tooltip("Velocidad horizontal en unidades por segundo (1 unidad = 16 píxeles).")]
     private float _movementSpeed = 7f;
 
-    [SerializeField, //saltar
+    [SerializeField, Min(0f)]
     [Tooltip("Impulso hacia arriba al pulsar Espacio.")]
     private float _jumpForce = 17f;
 
-    [Header("Caídas")] //reiniciar si se cae
+    [Header("Caídas")]
     [SerializeField]
     [Tooltip("Si el personaje baja de esta altura, vuelve al punto de inicio.")]
     private float _fallLimitY = -3f;
 
-    //movimiento de la camara
     [Header("Cámara")]
     [SerializeField]
     [Tooltip("X mínima de la cámara: media pantalla (640 px / 2 / 16 = 20).")]
@@ -26,12 +27,11 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("X máxima de la cámara: ancho del escenario menos media pantalla (120 - 20 = 100).")]
     private float _cameraMaxX = 100f;
 
-    [Header("Final")] //mensaje de llegar a la meta
+    [Header("Final")]
     [SerializeField]
     [Tooltip("Mensaje que se enseña al llegar a la meta (empieza desactivado).")]
     private GameObject _finishMessage;
 
-    //referencias a componentes y variables internas
     private Rigidbody2D _rb;
     private SpriteRenderer _spriteRenderer;
     private Vector3 _startPosition;
@@ -42,7 +42,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        //guarda los componentes y la posición inicial para reaparecer
         _rb = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _startPosition = transform.position;
@@ -50,16 +49,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        //parar al personaje cuando llega a la meta
+        // Si ya hemos llegado a la meta, no leemos el teclado: el personaje se queda quieto.
         if (_hasFinished)
         {
             _horizontalInput = 0f;
             return;
         }
 
+        // El input se lee en Update.
         _horizontalInput = Input.GetAxisRaw("Horizontal");
 
-        //saltar al espacio
         if (Input.GetKeyDown(KeyCode.Space) && _isGrounded)
         {
             _isJumpRequested = true;
@@ -75,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Las físicas se aplican en FixedUpdate. Solo cambiamos la X: la Y la controla la gravedad.
         _rb.linearVelocity = new Vector2(_horizontalInput * _movementSpeed, _rb.linearVelocity.y);
 
         if (_isJumpRequested)
@@ -87,18 +87,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void LateUpdate()
     {
-        //la camara se mueve en LateUpdate despues de mover al personaje para que no vaya con un frame de retraso
+        // La cámara se mueve en LateUpdate, después de mover al personaje, para que no vaya un frame tarde.
         Transform cameraTransform = Camera.main.transform;
-        //limita la X de la camara para que no se salga de los bordes del escenario
         float cameraX = Mathf.Clamp(transform.position.x, _cameraMinX, _cameraMaxX);
         cameraTransform.position = new Vector3(cameraX, cameraTransform.position.y, cameraTransform.position.z);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // La meta es un trigger con el tag Finish al final del escenario.
         if (other.CompareTag("Finish"))
         {
-            //muestra el mensaje final bloquea el control y detiene al personaje.
             Debug.Log("Has acabado!");
             _finishMessage.SetActive(true);
             _hasFinished = true;
@@ -113,6 +112,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
+        // Stay vuelve a comprobarlo mientras seguimos tocando el suelo,
+        // por si Exit lo desactivó al separarnos de una pared.
         CheckGround(collision);
     }
 
@@ -123,7 +124,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckGround(Collision2D collision)
     {
-        //colision del suelo
+        // Si el contacto empuja hacia arriba, estamos encima de algo (suelo o plataforma),
+        // no chocando de lado contra una pared.
         if (collision.GetContact(0).normal.y > 0.5f)
         {
             _isGrounded = true;
@@ -132,7 +134,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void FlipSprite()
     {
-        //cambia la direccion del sprite segun el movimiento
         if (_horizontalInput > 0f)
         {
             _spriteRenderer.flipX = false;
